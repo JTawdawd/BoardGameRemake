@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 17047274e14b53f4bb9fa8ea020ba0cb
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - tilePrefab: {instanceID: 0}
+  - mat_moveable: {instanceID: 0}
+  - mat_attackable: {instanceID: 0}
+  - mat_rotatable: {instanceID: 0}
+  - mat_teamOne: {instanceID: 0}
+  - mat_teamTwo: {instanceID: 0}
+  - archer: {fileID: 3931320632109546448, guid: 5c0c91f2f2a4b73438cd6b9a5be67e60, type: 3}
+  - knight: {fileID: 7520376134771771035, guid: 23637ef2295528440af55e4c03de5dfb, type: 3}
+  - mage: {fileID: 8067012209676753606, guid: 9c2a17168cf44b648a391e6fd13bdf59, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
