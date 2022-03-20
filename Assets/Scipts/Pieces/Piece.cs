@@ -25,6 +25,14 @@ public class Piece : MonoBehaviour
     public BoardManager.Team team;
 
     public Tile currentTile;
+
+    private Animator animator;
+
+    private void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
+
     public void Move(Tile targetTile)
     {
         currentTile.occupier = null;
@@ -34,7 +42,9 @@ public class Piece : MonoBehaviour
     }
     public void Attack(List<Tile> targetTiles)
     {
-        foreach(Tile targetTile in targetTiles)
+        animator.SetTrigger("Attack");
+
+        foreach (Tile targetTile in targetTiles)
         {
             if (targetTile.occupier == null)
                 return;
@@ -44,6 +54,7 @@ public class Piece : MonoBehaviour
             if (targetPiece == null)
                 return;
 
+            targetPiece.animator.SetTrigger("Damaged");
             targetPiece.health -= damage;
             targetPiece.CheckHealth();
 
@@ -77,11 +88,29 @@ public class Piece : MonoBehaviour
     public void CheckHealth()
     {
         if (health <= 0)
-            Die();
+            StartCoroutine(Die());
     }
 
-    void Die()
+    IEnumerator Die()
     {
+        animator.SetTrigger("Die");
+
+        yield return StartCoroutine(IsAnimPlaying("Death"));
+
+        this.currentTile.occupier = null;
         Destroy(this.gameObject);
     }
+
+    IEnumerator IsAnimPlaying(string currentAnim)
+    {
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        while (!stateInfo.IsName(currentAnim) || animator.IsInTransition(0))
+        {
+            stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            //Debug.Log(currentAnim + " : " + !stateInfo.IsName(currentAnim) + " | " + stateInfo.normalizedTime);
+            yield return null;
+        }
+            
+    }
+
 }

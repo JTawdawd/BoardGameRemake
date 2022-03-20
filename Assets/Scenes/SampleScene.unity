@@ -2483,9 +2483,9 @@ MonoBehaviour:
   mat_selectedAttack: {fileID: 2100000, guid: c9ccefa489d81bf4f81a0a6503209e6b, type: 2}
   mat_teamOne: {fileID: 2100000, guid: 396f7abc9b4541548968e21a142b20d0, type: 2}
   mat_teamTwo: {fileID: 2100000, guid: 75a95c1a6b684504c93637e35347c475, type: 2}
-  archer: {fileID: 3931320632109546448, guid: 5c0c91f2f2a4b73438cd6b9a5be67e60, type: 3}
-  knight: {fileID: 7520376134771771035, guid: 23637ef2295528440af55e4c03de5dfb, type: 3}
-  mage: {fileID: 8067012209676753606, guid: 9c2a17168cf44b648a391e6fd13bdf59, type: 3}
+  archer: {fileID: 1320491844087027338, guid: a66c7697d3d1c844e82aa26243dbfb29, type: 3}
+  knight: {fileID: 7665222537674039202, guid: d8ab507de49e2234baa614fec9764fe9, type: 3}
+  mage: {fileID: 5526948867094742401, guid: 5c44cd38509277745925ecba55278650, type: 3}
   teamOnePieces: []
   teamTwoPieces: []
 --- !u!4 &2131449288

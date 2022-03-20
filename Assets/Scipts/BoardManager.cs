@@ -255,12 +255,12 @@ public class BoardManager : MonoBehaviour
 
         if (team == Team.TeamOne)
         {
-            temp.GetComponentInChildren<SkinnedMeshRenderer>().material = mat_teamOne;
+            //temp.GetComponentInChildren<SkinnedMeshRenderer>().material = mat_teamOne;
             teamOnePieces.Add(piece);
         }
         else
         {
-            temp.GetComponentInChildren<SkinnedMeshRenderer>().material = mat_teamTwo;
+            //temp.GetComponentInChildren<SkinnedMeshRenderer>().material = mat_teamTwo;
             teamTwoPieces.Add(piece);
         }
             
