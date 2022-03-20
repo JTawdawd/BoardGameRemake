@@ -53,13 +53,19 @@ public class Move : PlayerTurnState
             if (hitTile == selectedTile)
             {
                 Debug.Log("Confirmed Selection");
-                stateMachine.selectedPiece.Move(selectedTile);
-                stateMachine.moved = true;
+
                 OnExit();
-                if (stateMachine.attacked)
-                    stateMachine.SetState(new Rotate(stateMachine));
-                else
-                    stateMachine.SetState(new Attack(stateMachine));
+
+                stateMachine.selectedPiece.Move(selectedTile, ()=>
+                    {
+                        stateMachine.moved = true;
+                        
+                        if (stateMachine.attacked)
+                            stateMachine.SetState(new Rotate(stateMachine));
+                        else
+                            stateMachine.SetState(new Attack(stateMachine));
+                    }
+                );
 
                 return base.OnClick(hit);
             }

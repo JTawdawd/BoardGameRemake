@@ -722,13 +722,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.4405689, y: -0, z: -0, w: 0.8977188}
-  m_LocalPosition: {x: -1.01, y: 9.92, z: -12.35}
+  m_LocalRotation: {x: 0.442078, y: 0.29266044, z: -0.14984639, w: 0.8345435}
+  m_LocalPosition: {x: -10.64, y: 15.9, z: -11.93}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 52.28, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 55.647, y: 39.113, z: 0.878}
 --- !u!1 &1043648781
 GameObject:
   m_ObjectHideFlags: 0
@@ -2481,8 +2481,12 @@ MonoBehaviour:
   mat_rotatable: {fileID: 2100000, guid: 538f9269427765a4bb83f945da53882c, type: 2}
   mat_selected: {fileID: 2100000, guid: 611c703f9c6e5c944afe4fb5298f1e5c, type: 2}
   mat_selectedAttack: {fileID: 2100000, guid: c9ccefa489d81bf4f81a0a6503209e6b, type: 2}
-  mat_teamOne: {fileID: 2100000, guid: 396f7abc9b4541548968e21a142b20d0, type: 2}
-  mat_teamTwo: {fileID: 2100000, guid: 75a95c1a6b684504c93637e35347c475, type: 2}
+  mat_Archer_teamOne: {fileID: 2100000, guid: d34368da44e95724c98996a9d4eaf12a, type: 2}
+  mat_Archer_teamTwo: {fileID: 2100000, guid: 1489607adfa279f469f313aceff642f5, type: 2}
+  mat_Knight_teamOne: {fileID: 2100000, guid: a379c851e07a7b54cb2a7161fdfa6fe3, type: 2}
+  mat_Knight_teamTwo: {fileID: 2100000, guid: efbc0d808587c2645afb4d8acac7beed, type: 2}
+  mat_Mage_teamOne: {fileID: 2100000, guid: 92df1ed48abe3254198e671b1985fce7, type: 2}
+  mat_Mage_teamTwo: {fileID: 2100000, guid: ae7dc855abe534747a91272aba01444e, type: 2}
   archer: {fileID: 1320491844087027338, guid: a66c7697d3d1c844e82aa26243dbfb29, type: 3}
   knight: {fileID: 7665222537674039202, guid: d8ab507de49e2234baa614fec9764fe9, type: 3}
   mage: {fileID: 5526948867094742401, guid: 5c44cd38509277745925ecba55278650, type: 3}

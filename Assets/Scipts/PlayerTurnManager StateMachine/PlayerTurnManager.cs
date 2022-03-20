@@ -60,6 +60,7 @@ public class PlayerTurnManager : MonoBehaviour
     void Click()
     {
         Debug.Log("click!");
+
         // calculate what has been clicked on and store in hit
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;

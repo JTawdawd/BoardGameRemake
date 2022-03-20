@@ -54,7 +54,7 @@ public class RandomAI
                 List<Tile> choiceTiles = new List<Tile>();
                 foreach(Tile tile in tiles)
                 {
-                    if (DistBetweenTiles(AIPiece.currentTile, tile) < AIPiece.attackRange)
+                    if (DistBetweenTiles(playerPiece.currentTile, tile) < AIPiece.attackRange)
                     {
                         choiceTiles.Add(tile);
                     }

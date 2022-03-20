@@ -4,27 +4,35 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
-    [SerializeField] public GameObject tilePrefab;
-    [SerializeField] public int boardSize;
-    [SerializeField] public int cullDepth;
+    [Header("Board Settings")] 
+    public GameObject tilePrefab;
+    public int boardSize;
+    public int cullDepth;
 
-    [SerializeField] public Material mat_default;
-    [SerializeField] public Material mat_moveable;
-    [SerializeField] public Material mat_attackable;
-    [SerializeField] public Material mat_rotatable;
-    [SerializeField] public Material mat_selected;
-    [SerializeField] public Material mat_selectedAttack;
+    [Header("Tile Materials")]
+    public Material mat_default;
+    public Material mat_moveable;
+    public Material mat_attackable;
+    public Material mat_rotatable;
+    public Material mat_selected;
+    public Material mat_selectedAttack;
 
-    [SerializeField] public Material mat_teamOne;
-    [SerializeField] public Material mat_teamTwo;
+    [Header("Piece Materials")]
+    public Material mat_Archer_teamOne;
+    public Material mat_Archer_teamTwo;
+    public Material mat_Knight_teamOne;
+    public Material mat_Knight_teamTwo;
+    public Material mat_Mage_teamOne;
+    public Material mat_Mage_teamTwo;
 
-    [SerializeField] public GameObject archer;
-    [SerializeField] public GameObject knight;
-    [SerializeField] public GameObject mage;
+    [Header("Piece Prefabs")]
+    public GameObject archer;
+    public GameObject knight;
+    public GameObject mage;
 
-
-    [SerializeField] public List<Piece> teamOnePieces;
-    [SerializeField] public List<Piece> teamTwoPieces;
+    [Header("Board position")]
+    public List<Piece> teamOnePieces;
+    public List<Piece> teamTwoPieces;
 
     enum PieceType
     {
@@ -50,7 +58,12 @@ public class BoardManager : MonoBehaviour
         //List<Tile> tiles = new List<Tile> { GetTileByPos(new Vector2(4,4)), GetTileByPos(new Vector2(3, 4)), GetTileByPos(new Vector2(5, 4)) };
         //UpdateTileMaterial(tiles, mat_attackable);
 
-        AddPiece(PieceType.Knight, new Vector2(4,4), Team.TeamOne);
+        DemoSetup();
+    }
+
+    void DemoSetup()
+    {
+        AddPiece(PieceType.Knight, new Vector2(4, 4), Team.TeamOne);
         AddPiece(PieceType.Knight, new Vector2(6, 4), Team.TeamOne);
         AddPiece(PieceType.Knight, new Vector2(8, 4), Team.TeamOne);
 
@@ -59,10 +72,9 @@ public class BoardManager : MonoBehaviour
 
         AddPiece(PieceType.Mage, new Vector2(6, 1), Team.TeamOne);
 
-
-        AddPiece(PieceType.Knight, new Vector2(4, 9), Team.TeamTwo);
-        AddPiece(PieceType.Knight, new Vector2(6, 9), Team.TeamTwo);
-        AddPiece(PieceType.Knight, new Vector2(8, 9), Team.TeamTwo);
+        AddPiece(PieceType.Knight, new Vector2(4, 8), Team.TeamTwo);
+        AddPiece(PieceType.Knight, new Vector2(6, 8), Team.TeamTwo);
+        AddPiece(PieceType.Knight, new Vector2(8, 8), Team.TeamTwo);
 
         AddPiece(PieceType.Archer, new Vector2(9, 10), Team.TeamTwo);
         AddPiece(PieceType.Archer, new Vector2(3, 10), Team.TeamTwo);
@@ -237,13 +249,13 @@ public class BoardManager : MonoBehaviour
         switch(pieceType)
         {
             default:
-                temp = Instantiate(archer, tile.transform.position, rotation);
+                temp = Instantiate(archer, (tile.transform.position + new Vector3(0, 0.1f, 0)), rotation);
                 break;
             case PieceType.Knight:
-                temp = Instantiate(knight, tile.transform.position, rotation);
+                temp = Instantiate(knight, (tile.transform.position + new Vector3(0, 0.1f, 0)), rotation);
                 break;
             case PieceType.Mage:
-                temp = Instantiate(mage, tile.transform.position, rotation);
+                temp = Instantiate(mage, (tile.transform.position + new Vector3(0, 0.1f, 0)), rotation);
                 break;
         }
 
@@ -253,15 +265,43 @@ public class BoardManager : MonoBehaviour
         piece.team = team;
         piece.pos = position;
 
+        SkinnedMeshRenderer skinnedMeshRenderer = temp.GetComponentInChildren<SkinnedMeshRenderer>();
         if (team == Team.TeamOne)
         {
             //temp.GetComponentInChildren<SkinnedMeshRenderer>().material = mat_teamOne;
             teamOnePieces.Add(piece);
+            
+            switch (pieceType)
+            {
+                default:
+                    skinnedMeshRenderer.material = mat_Archer_teamOne;
+                    break;
+                case PieceType.Knight:
+                    skinnedMeshRenderer.material = mat_Knight_teamOne;
+                    break;
+                case PieceType.Mage:
+                    skinnedMeshRenderer.material = mat_Mage_teamOne;
+                    break;
+            }
+            skinnedMeshRenderer.material.SetColor("_Color", new Color(1, 0.2f, 0.2f, 1));
         }
         else
         {
             //temp.GetComponentInChildren<SkinnedMeshRenderer>().material = mat_teamTwo;
             teamTwoPieces.Add(piece);
+            switch (pieceType)
+            {
+                default:
+                    skinnedMeshRenderer.material = mat_Archer_teamTwo;
+                    break;
+                case PieceType.Knight:
+                    skinnedMeshRenderer.material = mat_Knight_teamTwo;
+                    break;
+                case PieceType.Mage:
+                    skinnedMeshRenderer.material = mat_Mage_teamTwo;
+                    break;
+            }
+            skinnedMeshRenderer.material.SetColor("_Color", new Color(0.2f, 0.2f, 1, 1));
         }
             
     }

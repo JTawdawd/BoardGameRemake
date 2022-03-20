@@ -32,8 +32,10 @@ public class Attack : PlayerTurnState
 
     public override IEnumerator OnClick(RaycastHit hit)
     {
-
         Piece piece = hit.transform.parent.transform.GetComponent<Piece>();
+        if (piece != null && piece == stateMachine.selectedPiece)
+            return base.OnClick(hit);
+
         if (piece != null && piece != stateMachine.selectedPiece && !stateMachine.moved && piece.currentCooldown <= 0)
         {
             selectedAttackTiles.Clear();
@@ -56,19 +58,20 @@ public class Attack : PlayerTurnState
             if (selectedAttackTiles.Contains(hitTile))
             {
                 Debug.Log("Confirmed Selection");
-                stateMachine.selectedPiece.Rotate(hitTile);
-
-                stateMachine.selectedPiece.Attack(selectedAttackTiles);
-
-                stateMachine.attacked = true;
 
                 stateMachine.selectedTiles.AddRange(selectedAttackTiles);
                 OnExit();
 
-                if (stateMachine.moved)
-                    stateMachine.SetState(new Rotate(stateMachine));
-                else
-                    stateMachine.SetState(new Move(stateMachine));
+                stateMachine.selectedPiece.Attack(selectedAttackTiles, () =>
+                    {
+                        stateMachine.attacked = true;
+
+                        if (stateMachine.moved)
+                            stateMachine.SetState(new Rotate(stateMachine));
+                        else
+                            stateMachine.SetState(new Move(stateMachine));
+                    }
+                );
 
                 return base.OnClick(hit);
             }

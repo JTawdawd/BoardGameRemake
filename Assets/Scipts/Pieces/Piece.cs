@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
 public class Piece : MonoBehaviour
 {
     public enum ArmorType
@@ -28,38 +28,78 @@ public class Piece : MonoBehaviour
 
     private Animator animator;
 
+    [SerializeField] private int moveSpeed = 5;
+
     private void Start()
     {
         animator = GetComponent<Animator>();
     }
 
-    public void Move(Tile targetTile)
+    public void Move(Tile targetTile, Action OnCompleted)
     {
-        currentTile.occupier = null;
-        transform.position = targetTile.transform.position;
-        currentTile = targetTile;
-        targetTile.occupier = transform.gameObject;
+        PathFinder pathFinder = new PathFinder();
+        List<TileWrapper> path = pathFinder.AStarAlgorthim(currentTile, targetTile);
+
+        StartCoroutine(MoveAlongPath(path, () =>
+            {
+                currentTile.occupier = null;
+                transform.position = targetTile.transform.position + new Vector3(0, 0.1f, 0);
+                currentTile = targetTile;
+                targetTile.occupier = transform.gameObject;
+                OnCompleted?.Invoke();
+            }
+        ));
     }
-    public void Attack(List<Tile> targetTiles)
+
+    IEnumerator MoveAlongPath(List<TileWrapper> path, Action OnCompleted)
     {
+        animator.SetBool("IsWalking", true);
+
+        foreach(TileWrapper tileWrapper in path)
+        {
+            Rotate(tileWrapper.tile);
+            Vector3 targetPos = tileWrapper.tile.transform.position + new Vector3(0, 0.1f, 0);
+
+            while(transform.position != targetPos)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+                yield return null;
+            }
+        }
+
+        animator.SetBool("IsWalking", false);
+
+        OnCompleted?.Invoke();
+    }
+
+    public void Attack(List<Tile> targetTiles, Action OnCompleted)
+    {
+
+        Rotate(targetTiles[0]);
+
         animator.SetTrigger("Attack");
 
-        foreach (Tile targetTile in targetTiles)
-        {
-            if (targetTile.occupier == null)
-                return;
+        StartCoroutine(IsAnimPlaying("Attack", () =>
+            {
+                foreach (Tile targetTile in targetTiles)
+                {
+                    if (targetTile.occupier == null)
+                        continue;
 
-            Piece targetPiece = targetTile.occupier.GetComponent<Piece>();
+                    Piece targetPiece = targetTile.occupier.GetComponent<Piece>();
 
-            if (targetPiece == null)
-                return;
+                    if (targetPiece == null)
+                        continue;
 
-            targetPiece.animator.SetTrigger("Damaged");
-            targetPiece.health -= damage;
-            targetPiece.CheckHealth();
+                    targetPiece.animator.SetTrigger("Damaged");
+                    targetPiece.health -= damage;
+                    targetPiece.CheckHealth();
 
-            Debug.Log("Attacking: " + targetTile.occupier);
-        }
+                    Debug.Log("Attacking: " + targetTile.occupier);
+                }
+                OnCompleted?.Invoke();
+            }
+        ));
     }
     public void Rotate(Tile targetTile)
     {
@@ -95,22 +135,25 @@ public class Piece : MonoBehaviour
     {
         animator.SetTrigger("Die");
 
-        yield return StartCoroutine(IsAnimPlaying("Death"));
+        StartCoroutine(IsAnimPlaying("Death", () =>
+            {
+                this.currentTile.occupier = null;
+                Destroy(this.gameObject);
+            }
+        ));
 
-        this.currentTile.occupier = null;
-        Destroy(this.gameObject);
+        yield return null;
     }
 
-    IEnumerator IsAnimPlaying(string currentAnim)
+    IEnumerator IsAnimPlaying(string currentAnim, Action OnCompleted)
     {
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        while (!stateInfo.IsName(currentAnim) || animator.IsInTransition(0))
+        while (!animator.GetCurrentAnimatorStateInfo(0).IsName(currentAnim))
         {
-            stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            Debug.Log(animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
             //Debug.Log(currentAnim + " : " + !stateInfo.IsName(currentAnim) + " | " + stateInfo.normalizedTime);
             yield return null;
         }
-            
+        OnCompleted?.Invoke();
     }
 
 }

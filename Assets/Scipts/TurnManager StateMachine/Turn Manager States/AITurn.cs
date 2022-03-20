@@ -22,9 +22,12 @@ public class AITurn : TurnManagerState
 
         if (aIPiece != null)
         {
-            aIPiece.Move(action.toMove);
-            aIPiece.Attack(aIPiece.GetAttackTiles(targetPiece.currentTile));
-            aIPiece.currentCooldown = aIPiece.cooldown;
+            aIPiece.Move(action.toMove, () =>
+                {
+                    aIPiece.Attack(aIPiece.GetAttackTiles(targetPiece.currentTile), null);
+                    aIPiece.currentCooldown = aIPiece.cooldown;
+                }
+            );
         }
         
         Debug.Log("AI turn complete");
