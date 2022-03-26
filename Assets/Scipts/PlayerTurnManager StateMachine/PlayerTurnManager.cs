@@ -25,11 +25,14 @@ public class PlayerTurnManager : MonoBehaviour
     public Button b_rotate;
     public Button b_end;
 
+    public bool inputDisabled = false;
+
     public void SetState(PlayerTurnState state)
     {
         this.state = state;
         this.state.OnEnter();
-        UpdateButtons(state);
+        if (state.GetType() != typeof(EndTurn))
+            UpdateButtons(state);
     }
 
     void Awake()
@@ -59,7 +62,10 @@ public class PlayerTurnManager : MonoBehaviour
 
     void Click()
     {
-        Debug.Log("click!");
+        //Debug.Log("click!");
+
+        if (inputDisabled)
+            return;
 
         // calculate what has been clicked on and store in hit
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
@@ -70,7 +76,7 @@ public class PlayerTurnManager : MonoBehaviour
             return;
 
         Piece p = hit.transform.parent.transform.GetComponent<Piece>();
-        if (p != null && p.team != BoardManager.Team.TeamOne)
+        if (p != null && p.team != BoardManager.Team.TeamOne && state.GetType() != typeof(Attack))
             return;
             
         state.OnClick(hit);
@@ -79,28 +85,21 @@ public class PlayerTurnManager : MonoBehaviour
     void OnEnable()
     {
         newControls.Player.Enable();
-
-        playerTurn = (PlayerTurn)turnManager.state;
-
-        moved = false;
-        attacked = false;
-
-        b_move.interactable = true;
-        b_attack.interactable = true;
-        b_rotate.interactable = true;
-        b_end.interactable = true;
-
-        SetState(new Move(this));
     }
 
     void OnDisable()
     {
         newControls.Player.Disable();
+    }
 
-        b_move.interactable = false;
-        b_attack.interactable = false;
-        b_rotate.interactable = false;
-        b_end.interactable = false;
+    public void StartNewPlayerTurn()
+    {
+        playerTurn = (PlayerTurn)turnManager.state;
+
+        moved = false;
+        attacked = false;
+
+        SetState(new Move(this));
     }
 
     void UpdateButtons(PlayerTurnState state)

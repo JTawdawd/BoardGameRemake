@@ -13,6 +13,7 @@ public class Attack : PlayerTurnState
 
     public override IEnumerator OnEnter()
     {
+        stateMachine.inputDisabled = false;
         selectedAttackTiles = new List<Tile>();
         if (stateMachine.selectedPiece != null)
         {
@@ -36,7 +37,7 @@ public class Attack : PlayerTurnState
         if (piece != null && piece == stateMachine.selectedPiece)
             return base.OnClick(hit);
 
-        if (piece != null && piece != stateMachine.selectedPiece && !stateMachine.moved && piece.currentCooldown <= 0)
+        if (piece != null && piece != stateMachine.selectedPiece && !stateMachine.moved && piece.currentCooldown <= 0 && piece.team == BoardManager.Team.TeamOne)
         {
             selectedAttackTiles.Clear();
 
@@ -50,14 +51,20 @@ public class Attack : PlayerTurnState
         }
         else
         {
-            if (hit.transform.GetComponent<Tile>() == null)
+            if (hit.transform.GetComponent<Tile>() == null && piece == null)
                 return base.OnClick(hit);
 
-            Tile hitTile = hit.transform.GetComponent<Tile>();
+            Tile hitTile;
+
+            if (hit.transform.GetComponent<Tile>() != null)
+                hitTile = hit.transform.GetComponent<Tile>();
+            else
+                hitTile = piece.currentTile;
 
             if (selectedAttackTiles.Contains(hitTile))
             {
                 Debug.Log("Confirmed Selection");
+                stateMachine.inputDisabled = true;
 
                 stateMachine.selectedTiles.AddRange(selectedAttackTiles);
                 OnExit();

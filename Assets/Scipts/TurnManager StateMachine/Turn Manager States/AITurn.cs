@@ -14,6 +14,8 @@ public class AITurn : TurnManagerState
 
     public override IEnumerator OnEnter()
     {
+        stateMachine.turnIndicator.text = "AI Turn";
+
         BoardManager bm = stateMachine.boardManager;
         AIAction action = randomAI.SelectAIOption(randomAI.GenerateAIOptions(bm.teamOnePieces, bm.teamTwoPieces));
 
@@ -24,14 +26,21 @@ public class AITurn : TurnManagerState
         {
             aIPiece.Move(action.toMove, () =>
                 {
-                    aIPiece.Attack(aIPiece.GetAttackTiles(targetPiece.currentTile), null);
-                    aIPiece.currentCooldown = aIPiece.cooldown;
+                    aIPiece.Attack(aIPiece.GetAttackTiles(targetPiece.currentTile), () =>
+                        {
+                            Debug.Log("AI turn complete");
+                            OnExit();
+                        }
+                    );
+                    aIPiece.SetCurrentCooldown();
                 }
             );
         }
-        
-        Debug.Log("AI turn complete");
-        OnExit();
+        else
+        {
+            Debug.Log("AI did not have any moves");
+            OnExit();
+        }
         return base.OnEnter();
     }
 

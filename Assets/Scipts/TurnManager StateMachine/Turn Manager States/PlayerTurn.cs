@@ -11,12 +11,16 @@ public class PlayerTurn : TurnManagerState
 
     public override IEnumerator OnEnter()
     {
-        stateMachine.playerTurnManager.transform.gameObject.SetActive(true);
+        stateMachine.turnIndicator.text = "Player Turn";
+        stateMachine.playerTurnManager.StartNewPlayerTurn();
+        stateMachine.EnableButtons();
+        //stateMachine.playerTurnManager.transform.gameObject.SetActive(true);
         return base.OnEnter();
     }
 
     public override IEnumerator OnExit()
     {
+        stateMachine.DisableButtons();
         stateMachine.SetState(new AITurn(stateMachine));
         return base.OnExit();
     }

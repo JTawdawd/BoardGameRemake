@@ -5,6 +5,11 @@ TagManager:
   serializedVersion: 2
   tags:
   - Piece
+  - tile
+  - realDolphinBoy
+  - dolphinBoy
+  - SelectionPiece
+  - PlayerPositionsStorage
   layers:
   - Default
   - TransparentFX

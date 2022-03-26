@@ -14,6 +14,7 @@ public class Move : PlayerTurnState
 
     public override IEnumerator OnEnter()
     {
+        stateMachine.inputDisabled = false;
         if (stateMachine.selectedPiece != null)
         {
             BoardManager bm = stateMachine.boardManager;
@@ -53,7 +54,7 @@ public class Move : PlayerTurnState
             if (hitTile == selectedTile)
             {
                 Debug.Log("Confirmed Selection");
-
+                stateMachine.inputDisabled = true;
                 OnExit();
 
                 stateMachine.selectedPiece.Move(selectedTile, ()=>

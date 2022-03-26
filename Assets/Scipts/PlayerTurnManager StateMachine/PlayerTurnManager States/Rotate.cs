@@ -14,6 +14,7 @@ public class Rotate : PlayerTurnState
 
     public override IEnumerator OnEnter()
     {
+        stateMachine.inputDisabled = false;
         if (stateMachine.selectedPiece != null)
         {
             BoardManager bm = stateMachine.boardManager;
@@ -54,6 +55,7 @@ public class Rotate : PlayerTurnState
             if (hitTile == selectedTileRotate)
             {
                 Debug.Log("Confirmed Selection");
+                stateMachine.inputDisabled = true;
                 stateMachine.selectedPiece.Rotate(selectedTileRotate);
                 OnExit();
                 stateMachine.SetState(new EndTurn(stateMachine));

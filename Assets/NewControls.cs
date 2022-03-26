@@ -61,6 +61,126 @@ public partial class @NewControls : IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Camera"",
+            ""id"": ""b7cae0e3-9261-46b4-93d5-092ffcb19b48"",
+            ""actions"": [
+                {
+                    ""name"": ""Rotate"",
+                    ""type"": ""Value"",
+                    ""id"": ""03ed639c-0b51-498e-bee7-c8fa65899473"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": ""Hold(duration=1,pressPoint=0.1)"",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""9d854ee2-6588-4531-9658-cede2306d903"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""11341b5c-b1e6-4109-859c-a8fc58257293"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""376051b9-999e-4041-b2e0-1f80bdc065c8"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""794f8956-cad7-48e9-a31d-c4bf4235881e"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""940a8143-382c-4c09-adc0-f2e3be0784d7"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                }
+            ]
+        },
+        {
+            ""name"": ""SetUpSelection"",
+            ""id"": ""f31f93e7-398a-422b-98b6-46f7a4721545"",
+            ""actions"": [
+                {
+                    ""name"": ""Select"",
+                    ""type"": ""Button"",
+                    ""id"": ""3f6dec12-a1e2-4bcc-a87f-f6a6a700f02b"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Hold"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Remove"",
+                    ""type"": ""Button"",
+                    ""id"": ""5d901405-7e39-46b1-b1dc-7bfde67c3c5a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press"",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""f8fcf8a6-835b-4976-95a9-4abb81684163"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b25e2ce3-641f-4e07-beaf-47644ce00ced"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Remove"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -68,6 +188,13 @@ public partial class @NewControls : IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Click = m_Player.FindAction("Click", throwIfNotFound: true);
+        // Camera
+        m_Camera = asset.FindActionMap("Camera", throwIfNotFound: true);
+        m_Camera_Rotate = m_Camera.FindAction("Rotate", throwIfNotFound: true);
+        // SetUpSelection
+        m_SetUpSelection = asset.FindActionMap("SetUpSelection", throwIfNotFound: true);
+        m_SetUpSelection_Select = m_SetUpSelection.FindAction("Select", throwIfNotFound: true);
+        m_SetUpSelection_Remove = m_SetUpSelection.FindAction("Remove", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -156,8 +283,91 @@ public partial class @NewControls : IInputActionCollection2, IDisposable
         }
     }
     public PlayerActions @Player => new PlayerActions(this);
+
+    // Camera
+    private readonly InputActionMap m_Camera;
+    private ICameraActions m_CameraActionsCallbackInterface;
+    private readonly InputAction m_Camera_Rotate;
+    public struct CameraActions
+    {
+        private @NewControls m_Wrapper;
+        public CameraActions(@NewControls wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Rotate => m_Wrapper.m_Camera_Rotate;
+        public InputActionMap Get() { return m_Wrapper.m_Camera; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(CameraActions set) { return set.Get(); }
+        public void SetCallbacks(ICameraActions instance)
+        {
+            if (m_Wrapper.m_CameraActionsCallbackInterface != null)
+            {
+                @Rotate.started -= m_Wrapper.m_CameraActionsCallbackInterface.OnRotate;
+                @Rotate.performed -= m_Wrapper.m_CameraActionsCallbackInterface.OnRotate;
+                @Rotate.canceled -= m_Wrapper.m_CameraActionsCallbackInterface.OnRotate;
+            }
+            m_Wrapper.m_CameraActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @Rotate.started += instance.OnRotate;
+                @Rotate.performed += instance.OnRotate;
+                @Rotate.canceled += instance.OnRotate;
+            }
+        }
+    }
+    public CameraActions @Camera => new CameraActions(this);
+
+    // SetUpSelection
+    private readonly InputActionMap m_SetUpSelection;
+    private ISetUpSelectionActions m_SetUpSelectionActionsCallbackInterface;
+    private readonly InputAction m_SetUpSelection_Select;
+    private readonly InputAction m_SetUpSelection_Remove;
+    public struct SetUpSelectionActions
+    {
+        private @NewControls m_Wrapper;
+        public SetUpSelectionActions(@NewControls wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Select => m_Wrapper.m_SetUpSelection_Select;
+        public InputAction @Remove => m_Wrapper.m_SetUpSelection_Remove;
+        public InputActionMap Get() { return m_Wrapper.m_SetUpSelection; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(SetUpSelectionActions set) { return set.Get(); }
+        public void SetCallbacks(ISetUpSelectionActions instance)
+        {
+            if (m_Wrapper.m_SetUpSelectionActionsCallbackInterface != null)
+            {
+                @Select.started -= m_Wrapper.m_SetUpSelectionActionsCallbackInterface.OnSelect;
+                @Select.performed -= m_Wrapper.m_SetUpSelectionActionsCallbackInterface.OnSelect;
+                @Select.canceled -= m_Wrapper.m_SetUpSelectionActionsCallbackInterface.OnSelect;
+                @Remove.started -= m_Wrapper.m_SetUpSelectionActionsCallbackInterface.OnRemove;
+                @Remove.performed -= m_Wrapper.m_SetUpSelectionActionsCallbackInterface.OnRemove;
+                @Remove.canceled -= m_Wrapper.m_SetUpSelectionActionsCallbackInterface.OnRemove;
+            }
+            m_Wrapper.m_SetUpSelectionActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @Select.started += instance.OnSelect;
+                @Select.performed += instance.OnSelect;
+                @Select.canceled += instance.OnSelect;
+                @Remove.started += instance.OnRemove;
+                @Remove.performed += instance.OnRemove;
+                @Remove.canceled += instance.OnRemove;
+            }
+        }
+    }
+    public SetUpSelectionActions @SetUpSelection => new SetUpSelectionActions(this);
     public interface IPlayerActions
     {
         void OnClick(InputAction.CallbackContext context);
+    }
+    public interface ICameraActions
+    {
+        void OnRotate(InputAction.CallbackContext context);
+    }
+    public interface ISetUpSelectionActions
+    {
+        void OnSelect(InputAction.CallbackContext context);
+        void OnRemove(InputAction.CallbackContext context);
     }
 }

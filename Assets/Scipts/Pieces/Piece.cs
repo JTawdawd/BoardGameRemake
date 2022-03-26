@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-public class Piece : MonoBehaviour
+public abstract class Piece : MonoBehaviour
 {
     public enum ArmorType
     {
@@ -11,28 +11,37 @@ public class Piece : MonoBehaviour
         heavy
     }
 
-    public float health;
-    public float damage;
-    public int currentCooldown;
+    public BoardManager.PieceType pieceType;
 
-    public int movementRange;
-    public int attackRange;
-    public ArmorType armorType;
-    public int cooldown;
+    public abstract float health { get; set; }
+    public abstract float damage { get; set; }
+    public abstract int currentCooldown { get; set; }
 
-    public Vector2 pos;
+    public abstract int movementRange { get; protected set; }
+    public abstract int attackRange { get; protected set; }
+    public abstract ArmorType armorType { get; protected set; }
+    public abstract int cooldown { get; protected set; }
 
-    public BoardManager.Team team;
+    public abstract Vector2 pos { get; set; }
 
-    public Tile currentTile;
+    public abstract BoardManager.Team team { get; set; }
 
-    private Animator animator;
+    public abstract Tile currentTile { get; set; }
+
+    public abstract Animator animator { get; set; }
 
     [SerializeField] private int moveSpeed = 5;
+    BoardManager boardManager;
+
+    public void SetCurrentCooldown()
+    {
+        currentCooldown = cooldown;
+    }
 
     private void Start()
     {
         animator = GetComponent<Animator>();
+        boardManager = GameObject.Find("BoardManager").GetComponent<BoardManager>();
     }
 
     public void Move(Tile targetTile, Action OnCompleted)
@@ -94,8 +103,6 @@ public class Piece : MonoBehaviour
                     targetPiece.animator.SetTrigger("Damaged");
                     targetPiece.health -= damage;
                     targetPiece.CheckHealth();
-
-                    Debug.Log("Attacking: " + targetTile.occupier);
                 }
                 OnCompleted?.Invoke();
             }
@@ -105,18 +112,19 @@ public class Piece : MonoBehaviour
     {
         Vector3 currPos = transform.position;
         Vector3 rotateTowards = targetTile.transform.position;
+        float angle = Mathf.Atan2(rotateTowards.z - currPos.z, rotateTowards.x - currPos.x) * Mathf.Rad2Deg;
 
         // up
-        if (currPos.x == rotateTowards.x && currPos.z < rotateTowards.z)
+        if (angle >= 45 && angle < 135)
             transform.eulerAngles = new Vector3(0, 0, 0); 
         // down
-        else if (currPos.x == rotateTowards.x && currPos.z > rotateTowards.z)
+        else if (angle >= -135 && angle < -45)
             transform.eulerAngles = new Vector3(0, 180, 0);
         // left
-        else if (currPos.x > rotateTowards.x && currPos.z == rotateTowards.z)
+        else if (angle >= 135 || angle < -135)
             transform.eulerAngles = new Vector3(0, -90, 0);
         // right
-        else if (currPos.x < rotateTowards.x && currPos.z == rotateTowards.z)
+        else if (angle >= -45 && angle < 45)
             transform.eulerAngles = new Vector3(0, 90, 0);          
     }
 
@@ -135,6 +143,11 @@ public class Piece : MonoBehaviour
     {
         animator.SetTrigger("Die");
 
+        if (team == BoardManager.Team.TeamOne)
+            boardManager.teamOnePieces.Remove(this);
+        else if (team == BoardManager.Team.TeamTwo)
+            boardManager.teamTwoPieces.Remove(this);
+
         StartCoroutine(IsAnimPlaying("Death", () =>
             {
                 this.currentTile.occupier = null;
@@ -149,10 +162,11 @@ public class Piece : MonoBehaviour
     {
         while (!animator.GetCurrentAnimatorStateInfo(0).IsName(currentAnim))
         {
-            Debug.Log(animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
             //Debug.Log(currentAnim + " : " + !stateInfo.IsName(currentAnim) + " | " + stateInfo.normalizedTime);
             yield return null;
         }
+        if (currentAnim == "Death")
+            yield return new WaitForSeconds(2);
         OnCompleted?.Invoke();
     }
 

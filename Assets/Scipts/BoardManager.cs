@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BoardManager : MonoBehaviour
 {
@@ -34,7 +35,9 @@ public class BoardManager : MonoBehaviour
     public List<Piece> teamOnePieces;
     public List<Piece> teamTwoPieces;
 
-    enum PieceType
+    PlayerPositionStorage posStorage;
+
+    public enum PieceType
     {
         Archer,
         Knight,
@@ -47,31 +50,49 @@ public class BoardManager : MonoBehaviour
         TeamTwo
     }
 
+    private void Awake()
+    {
+        posStorage = GameObject.Find("PlayerPositionsStorage").GetComponent<PlayerPositionStorage>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        BoardGeneration(boardSize);
-        LinkTiles();
-        CullEdges(cullDepth);
+        if (SceneManager.GetActiveScene().name == "SetUp")
+        {
+            BoardGeneration(boardSize, boardSize/2);
+            LinkTiles(boardSize, boardSize / 2);
+            CullEdges(cullDepth, boardSize, boardSize / 2, false);
 
-        //UpdateTileMaterialRec(GetTileByPos(new Vector2(4, 4)), 4, mat_moveable);
-        //List<Tile> tiles = new List<Tile> { GetTileByPos(new Vector2(4,4)), GetTileByPos(new Vector2(3, 4)), GetTileByPos(new Vector2(5, 4)) };
-        //UpdateTileMaterial(tiles, mat_attackable);
+            ReadInPlayerPositions();
+        }
+        else if (SceneManager.GetActiveScene().name == "Game")
+        {
+            BoardGeneration(boardSize, boardSize);
+            LinkTiles(boardSize, boardSize);
+            CullEdges(cullDepth, boardSize, boardSize, true);
 
-        DemoSetup();
+            //UpdateTileMaterialRec(GetTileByPos(new Vector2(4, 4)), 4, mat_moveable);
+            //List<Tile> tiles = new List<Tile> { GetTileByPos(new Vector2(4,4)), GetTileByPos(new Vector2(3, 4)), GetTileByPos(new Vector2(5, 4)) };
+            //UpdateTileMaterial(tiles, mat_attackable);
+
+            ReadInPlayerPositions();
+
+            DemoSetup();
+        } 
+    }
+
+    void ReadInPlayerPositions()
+    {
+        List<PlayerPositionStorage.PieceInfo> local = new List<PlayerPositionStorage.PieceInfo>(posStorage.pieces);
+        foreach(PlayerPositionStorage.PieceInfo pieceInfo in local)
+        {
+            AddPiece(pieceInfo.pieceType, pieceInfo.position, Team.TeamOne);
+        }
     }
 
     void DemoSetup()
     {
-        AddPiece(PieceType.Knight, new Vector2(4, 4), Team.TeamOne);
-        AddPiece(PieceType.Knight, new Vector2(6, 4), Team.TeamOne);
-        AddPiece(PieceType.Knight, new Vector2(8, 4), Team.TeamOne);
-
-        AddPiece(PieceType.Archer, new Vector2(3, 2), Team.TeamOne);
-        AddPiece(PieceType.Archer, new Vector2(9, 2), Team.TeamOne);
-
-        AddPiece(PieceType.Mage, new Vector2(6, 1), Team.TeamOne);
-
         AddPiece(PieceType.Knight, new Vector2(4, 8), Team.TeamTwo);
         AddPiece(PieceType.Knight, new Vector2(6, 8), Team.TeamTwo);
         AddPiece(PieceType.Knight, new Vector2(8, 8), Team.TeamTwo);
@@ -84,13 +105,13 @@ public class BoardManager : MonoBehaviour
 
     #region generation
 
-    void BoardGeneration(int size)
+    void BoardGeneration(int rowSize, int columnSize)
     {
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < rowSize; i++)
         {
-            for (int j = 0; j < size; j++)
+            for (int j = 0; j < columnSize; j++)
             {
-                GameObject tile = Instantiate(tilePrefab, new Vector3(i * 2.1f - size, 0, j * 2.1f - size), Quaternion.identity, this.gameObject.transform);
+                GameObject tile = Instantiate(tilePrefab, new Vector3(i * 2.1f - rowSize, 0, j * 2.1f - columnSize), Quaternion.identity, this.gameObject.transform);
                 tile.name = "tile(" + i + ", " + j + ")";
                 Tile t = tile.GetComponent<Tile>();
                 t.pos = new Vector2(i, j);
@@ -98,34 +119,44 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    void LinkTiles()
+    void LinkTiles(int rowSize, int columnSize)
     {
         foreach(Transform child in this.gameObject.transform)
         {
             Tile tile = child.GetComponent<Tile>();
-
-            if (tile.pos.y + 1 < boardSize)
+            
+            if (tile.pos.y + 1 < columnSize)
                 tile.up = GetTileByPos(new Vector2(tile.pos.x, tile.pos.y + 1));
             if (tile.pos.y - 1 >= 0)
                 tile.down = GetTileByPos(new Vector2(tile.pos.x, tile.pos.y - 1));
-            if (tile.pos.x + 1 < boardSize)
+            if (tile.pos.x + 1 < rowSize)
                 tile.right = GetTileByPos(new Vector2(tile.pos.x + 1, tile.pos.y));
             if (tile.pos.x - 1 >= 0)
                 tile.left = GetTileByPos(new Vector2(tile.pos.x - 1, tile.pos.y));
         }
     }
 
-    void CullEdges(int cullDepth)
+    void CullEdges(int cullDepth, int rowSize, int columnSize, bool allEdges)
     {
         Tile bottomLeft = GetTileByPos(new Vector2(0, 0));
-        Tile bottomRight = GetTileByPos(new Vector2(0, boardSize-1));
-        Tile topLeft = GetTileByPos(new Vector2(boardSize-1, 0));
-        Tile topRight = GetTileByPos(new Vector2(boardSize-1, boardSize-1));
+        Tile topLeft = GetTileByPos(new Vector2(0, columnSize - 1));
+        Tile bottomRight = GetTileByPos(new Vector2(rowSize - 1, 0));
+        Tile topRight = GetTileByPos(new Vector2(rowSize - 1, columnSize - 1));
 
-        CullEdgesRec(bottomLeft, cullDepth);
-        CullEdgesRec(bottomRight, cullDepth);
-        CullEdgesRec(topLeft, cullDepth);
-        CullEdgesRec(topRight, cullDepth);
+        List<Tile> toCull;
+
+        if (allEdges)
+            toCull = new List<Tile> { bottomLeft, topLeft, topRight, bottomRight };
+        else
+            toCull = new List<Tile> { bottomLeft, bottomRight };
+
+        
+
+        foreach(Tile tile in toCull)
+        {
+            if (tile != null)
+                CullEdgesRec(tile, cullDepth);
+        }
     }
 
     void CullEdgesRec(Tile currTile, int cullDepth)
@@ -235,7 +266,7 @@ public class BoardManager : MonoBehaviour
 
     #endregion 
 
-    void AddPiece(PieceType pieceType, Vector2 position, Team team)
+    public Piece AddPiece(PieceType pieceType, Vector2 position, Team team)
     {
         Tile tile = GetTileByPos(position);
         GameObject temp;
@@ -275,12 +306,15 @@ public class BoardManager : MonoBehaviour
             {
                 default:
                     skinnedMeshRenderer.material = mat_Archer_teamOne;
+                    piece.pieceType = PieceType.Archer;
                     break;
                 case PieceType.Knight:
                     skinnedMeshRenderer.material = mat_Knight_teamOne;
+                    piece.pieceType = PieceType.Knight;
                     break;
                 case PieceType.Mage:
                     skinnedMeshRenderer.material = mat_Mage_teamOne;
+                    piece.pieceType = PieceType.Mage;
                     break;
             }
             skinnedMeshRenderer.material.SetColor("_Color", new Color(1, 0.2f, 0.2f, 1));
@@ -293,22 +327,26 @@ public class BoardManager : MonoBehaviour
             {
                 default:
                     skinnedMeshRenderer.material = mat_Archer_teamTwo;
+                    piece.pieceType = PieceType.Archer;
                     break;
                 case PieceType.Knight:
                     skinnedMeshRenderer.material = mat_Knight_teamTwo;
+                    piece.pieceType = PieceType.Knight;
                     break;
                 case PieceType.Mage:
                     skinnedMeshRenderer.material = mat_Mage_teamTwo;
+                    piece.pieceType = PieceType.Mage;
                     break;
             }
             skinnedMeshRenderer.material.SetColor("_Color", new Color(0.2f, 0.2f, 1, 1));
         }
-            
+        return temp.GetComponent<Piece>();
     }
 
     public Tile GetTileByPos(Vector2 pos)
     {
-        return GameObject.Find("tile(" + pos.x + ", " + pos.y + ")").GetComponent<Tile>();
+        Tile tile = GameObject.Find("tile(" + pos.x + ", " + pos.y + ")").GetComponent<Tile>();
+        return tile;
     }
 
 }

@@ -24,11 +24,11 @@ public class EndTurn : PlayerTurnState
                 piece.currentCooldown--;
 
         if (stateMachine.moved || stateMachine.attacked)
-            stateMachine.selectedPiece.currentCooldown = stateMachine.selectedPiece.cooldown;
+            stateMachine.selectedPiece.SetCurrentCooldown();
         stateMachine.selectedPiece = null;
         stateMachine.ClearSelection();
 
-        stateMachine.transform.gameObject.SetActive(false);
+        //stateMachine.transform.gameObject.SetActive(false);
         
         OnExit();
 
