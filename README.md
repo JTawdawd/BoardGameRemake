@@ -1,6 +1,8 @@
 # BoardGameRemake
 
-download ./demo/BoardGameRemake.exe & run
+1. download ./demo/BoardGame
+2. unzip
+3. run BoardGameRemake.exe
 
 ![alt text](https://github.com/JTawdawd/BoardGameRemake/blob/master/demo/CharacterSelect.png?raw=true)
 
